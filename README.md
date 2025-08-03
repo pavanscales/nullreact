@@ -1,7 +1,7 @@
 # nullReact
 
-> 🧬 Zero-Runtime · ⚡ Compiler-First · 🧠 Fine-Grained Reactivity  
-> Built in 🦀 Rust. Outputs `<1KB` JS. Blazing-fast.
+> Zero-Runtime · Compiler-First · Fine-Grained Reactivity  
+> Built in Rust. Outputs `<1KB` JS. Blazing-fast.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Built with Rust](https://img.shields.io/badge/built%20with-rust-orange)](https://www.rust-lang.org)
@@ -9,98 +9,98 @@
 
 ---
 
-`nullReact` is a new kind of web framework — **not a library**, but a **compiler-first engine**.  
-It compiles JSX into **zero-runtime**, **reactive JavaScript**, with **fine-grained signal-based updates** — all under 1KB.
+**nullReact** is a new kind of frontend framework — not a library, but a **compiler-first engine**.  
+It compiles JSX into **zero-runtime**, **reactive JavaScript** with **fine-grained updates** — all under **1KB**.
 
-Perfect for those who demand 🧠 minimalism, ⚡ raw performance, and 🛠️ full control.
-
----
-
-## 🚀 Why nullReact?
-
-- 🛠️ **Compiler-First** — JSX is compiled to highly-optimized JavaScript.
-- 🧬 **Signals + Effects** — Fine-grained reactivity without component re-renders.
-- 🚫 **No Virtual DOM** — Direct DOM operations. Real speed.
-- 📦 **Minimal Runtime** — Optional runtime under **1KB**.
-- 🦀 **Rust-Powered** — Fast, safe, and parallel compilation.
+Built for developers who demand minimalism, performance, and control.
 
 ---
 
-## 🔧 Quick Start
+## Why nullReact?
+
+- **Compiler-First** — JSX is turned into highly-optimized JavaScript at build time.
+- **Signals & Effects** — Fine-grained reactivity without re-rendering components.
+- **No Virtual DOM** — Real DOM operations for real performance.
+- **Optional Runtime** — Ships a runtime under **1KB**, or none at all.
+- **Rust-Powered** — Fast, safe, and parallel compilation pipeline.
+
+---
+
+## Quick Start
 
 ```bash
-# 🌀 Clone the repo
+# Clone the repo
 git clone https://github.com/pavanscales/nullreact
 cd nullreact
 
-# 🛠 Build the compiler
+# Build the compiler
 make build
 
-# ⏱ Run benchmarks
+# Run performance benchmarks
 make bench
-📁 Project Structure
+Project Structure
 graphql
 Copy
 Edit
 nullreact/
-├── compiler/                   # ⚙️ Rust-based compiler: parses JSX → signals
+├── compiler/                   # Rust-based JSX compiler + signal engine
 │   ├── src/
-│   │   ├── lib.rs              # Entry point + CLI tool
-│   │   ├── jsx.rs              # JSX parser to AST
-│   │   ├── emitter.rs          # AST → optimized JavaScript
-│   │   ├── signals.rs          # Core reactivity engine (signals, batching)
-│   │   ├── bench.rs            # Performance test suites
-│   │   └── runtime.js          # Shared runtime JS (for hydration/hooks)
-│   ├── Cargo.toml              # Rust crate definition
-│   └── Makefile                # Build/test/benchmark commands
+│   │   ├── lib.rs              # Compiler CLI entry point
+│   │   ├── jsx.rs              # JSX → AST parser
+│   │   ├── emitter.rs          # AST → JavaScript emitter
+│   │   ├── signals.rs          # Signals, batching, effects engine
+│   │   ├── bench.rs            # Micro-benchmark suite
+│   │   └── runtime.js          # Shared JS runtime for hydration
+│   ├── Cargo.toml              # Rust crate config
+│   └── Makefile                # Build, test, and bench commands
 │
-├── runtime/                    # 🧪 Minimal JS runtime for DOM updates
+├── runtime/                    # JavaScript runtime for client-side DOM
 │   ├── dist/
-│   │   └── runtime.js          # Compiled runtime bundle (<1KB)
-│   ├── signals.js              # Signals in JavaScript (for fallback)
-│   ├── dom.js                  # Reactive DOM API (insert/update/remove)
-│   └── index.js                # Entrypoint for apps using JS runtime
+│   │   └── runtime.js          # Compiled bundle (<1KB)
+│   ├── signals.js              # JS version of signal system
+│   ├── dom.js                  # DOM mutation utilities
+│   └── index.js                # Runtime entrypoint
 │
-├── examples/                   # 🧩 Real-world demos compiled by the CLI
-│   ├── 1m-signals.jsx          # Benchmarks 1M reactive signals
-│   ├── 10k-filter.jsx          # List filtering performance
-│   └── ui-benchmark.jsx        # High-frequency DOM ops test
+├── examples/                   # JSX demos compiled by CLI
+│   ├── 1m-signals.jsx          # 1 million signal stress test
+│   ├── 10k-filter.jsx          # List filtering demo
+│   └── ui-benchmark.jsx        # High-frequency DOM updates
 │
-├── website/                    # 🌍 Playground or landing page
+├── website/                    # Playground and landing page
 │   ├── public/
-│   │   └── playground.html     # Try JSX-to-JS in the browser
+│   │   └── playground.html     # In-browser JSX → JS compiler
 │   ├── src/
-│   │   └── index.ts            # Playground compiler logic
-│   └── vite.config.ts          # Local dev setup via Vite
+│   │   └── index.ts            # Playground logic
+│   └── vite.config.ts          # Dev server config
 │
-├── README.md                   # 📘 Project overview and usage
-├── LICENSE                     # 📄 MIT open-source license
-└── .gitignore                  # 🔒 Ignore build, temp, and cache files
-📊 Benchmarks
-🧪 Test	🧱 React	⚡ nullReact
-1 Million Signals	❌ Crashes	✅ Instant
-10k Filter Updates	⚠️ Laggy	✅ Smooth
+├── README.md                   # Project documentation
+├── LICENSE                     # MIT license
+└── .gitignore                  # Ignore build/temp artifacts
+Benchmarks
+Test	React	nullReact
+1 Million Signals	Crashes	Instant
+10k Filter Updates	Laggy	Smooth
 Cold Start Runtime	~43KB	<1KB
 
-⏱ Run all tests: make bench
+Run benchmarks with: make bench
 
-📣 Philosophy
-🔥 Reactivity should be compiled, not interpreted.
+Philosophy
+Reactivity should be compiled, not interpreted.
 
-🧩 Runtimes should be opt-in, not bloated.
+Runtimes should be opt-in, not required.
 
-📏 Performance should be measurable, not theoretical.
+Performance should be measured, not assumed.
 
-📜 License
+License
 MIT © Pawan Pediredla
 
-💬 Get Involved
-Found bugs 🐞? Have ideas 💡? Want to shape the future of reactivity?
+Get Involved
+Have ideas? Found bugs? Want to shape the future of reactive UI?
 
-👥 Join Discussions
+Join Discussions
 
-🐛 Create an Issue
+Report Issues
 
-⭐ Star the Repo
+Star the Repo
 
-Built with ❤️ to change how the web thinks about reactivity.
+Built to change how the web thinks about reactivity.
