@@ -20,39 +20,40 @@ fn parse_element<I>(chars: &mut std::iter::Peekable<I>) -> JSXNode
 where
     I: Iterator<Item = char>,
 {
-    consume_whitespace(chars);
-    assert_eq!(chars.next(), Some('<'));
+    skip_ws(chars);
+    expect(chars, '<');
 
-    let tag = parse_identifier(chars);
-    let attrs = parse_attributes(chars);
+    let tag = parse_ident(chars);
+    let attrs = parse_attrs(chars);
 
-    let is_self_closing = if let Some('/') = chars.peek() {
-        chars.next();
-        assert_eq!(chars.next(), Some('>'));
-        true
-    } else {
-        assert_eq!(chars.next(), Some('>'));
-        false
+    let self_closing = match chars.peek() {
+        Some('/') => {
+            chars.next();
+            expect(chars, '>');
+            true
+        }
+        Some('>') => {
+            chars.next();
+            false
+        }
+        _ => panic!("Invalid JSX format"),
     };
 
     let mut children = vec![];
 
-    if !is_self_closing {
+    if !self_closing {
         loop {
-            consume_whitespace(chars);
-
+            skip_ws(chars);
             match chars.peek() {
-                Some('<') => {
-                    if lookahead(chars, "</") {
-                        consume_until(chars, '>');
-                        chars.next(); // consume '>'
-                        break;
-                    } else {
-                        children.push(parse_element(chars));
-                    }
+                Some('<') if peek_match(chars, "</") => {
+                    consume(chars, "</");
+                    parse_ident(chars);
+                    expect(chars, '>');
+                    break;
                 }
+                Some('<') => children.push(parse_element(chars)),
                 Some('{') => {
-                    chars.next(); // {
+                    chars.next(); // consume {
                     let expr = consume_until(chars, '}');
                     chars.next(); // }
                     children.push(JSXNode::Expression(expr.trim().to_string()));
@@ -68,14 +69,10 @@ where
         }
     }
 
-    JSXNode::Element {
-        tag,
-        attrs,
-        children,
-    }
+    JSXNode::Element { tag, attrs, children }
 }
 
-fn parse_identifier<I>(chars: &mut std::iter::Peekable<I>) -> String
+fn parse_ident<I>(chars: &mut std::iter::Peekable<I>) -> String
 where
     I: Iterator<Item = char>,
 {
@@ -91,20 +88,20 @@ where
     ident
 }
 
-fn parse_attributes<I>(chars: &mut std::iter::Peekable<I>) -> HashMap<String, String>
+fn parse_attrs<I>(chars: &mut std::iter::Peekable<I>) -> HashMap<String, String>
 where
     I: Iterator<Item = char>,
 {
     let mut attrs = HashMap::new();
     loop {
-        consume_whitespace(chars);
+        skip_ws(chars);
         match chars.peek() {
             Some('>') | Some('/') => break,
             Some(_) => {
-                let name = parse_identifier(chars);
-                consume_whitespace(chars);
-                assert_eq!(chars.next(), Some('='));
-                consume_whitespace(chars);
+                let name = parse_ident(chars);
+                skip_ws(chars);
+                expect(chars, '=');
+                skip_ws(chars);
                 let quote = chars.next().unwrap();
                 assert!(quote == '"' || quote == '\'');
                 let value = consume_until(chars, quote);
@@ -117,49 +114,37 @@ where
     attrs
 }
 
-fn consume_whitespace<I>(chars: &mut std::iter::Peekable<I>)
-where
-    I: Iterator<Item = char>,
-{
+fn skip_ws<I: Iterator<Item = char>>(chars: &mut std::iter::Peekable<I>) {
     while matches!(chars.peek(), Some(c) if c.is_whitespace()) {
         chars.next();
     }
 }
 
-fn consume_until<I>(chars: &mut std::iter::Peekable<I>, end: char) -> String
-where
-    I: Iterator<Item = char>,
-{
-    let mut result = String::new();
-    while let Some(&ch) = chars.peek() {
-        if ch == end {
+fn consume_until<I: Iterator<Item = char>>(chars: &mut std::iter::Peekable<I>, end: char) -> String {
+    let mut out = String::new();
+    while let Some(&c) = chars.peek() {
+        if c == end {
             break;
         }
-        result.push(ch);
+        out.push(c);
         chars.next();
     }
-    result
+    out
 }
 
-fn consume_text<I>(chars: &mut std::iter::Peekable<I>) -> String
-where
-    I: Iterator<Item = char>,
-{
-    let mut result = String::new();
+fn consume_text<I: Iterator<Item = char>>(chars: &mut std::iter::Peekable<I>) -> String {
+    let mut out = String::new();
     while let Some(&ch) = chars.peek() {
         if ch == '<' || ch == '{' {
             break;
         }
-        result.push(ch);
+        out.push(ch);
         chars.next();
     }
-    result
+    out
 }
 
-fn lookahead<I>(chars: &mut std::iter::Peekable<I>, pat: &str) -> bool
-where
-    I: Iterator<Item = char> + Clone,
-{
+fn peek_match<I: Iterator<Item = char> + Clone>(chars: &std::iter::Peekable<I>, pat: &str) -> bool {
     let mut clone = chars.clone();
     for c in pat.chars() {
         if clone.next() != Some(c) {
@@ -167,4 +152,17 @@ where
         }
     }
     true
+}
+
+fn consume<I: Iterator<Item = char>>(chars: &mut std::iter::Peekable<I>, pat: &str) {
+    for expected in pat.chars() {
+        assert_eq!(chars.next(), Some(expected));
+    }
+}
+
+fn expect<I: Iterator<Item = char>>(chars: &mut std::iter::Peekable<I>, expected: char) {
+    match chars.next() {
+        Some(c) if c == expected => {}
+        _ => panic!("Expected '{}'", expected),
+    }
 }
