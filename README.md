@@ -1,17 +1,3 @@
-To make the `nullReact` README top-tier like Next.js or Solid.js — professional, developer-friendly, and persuasive — you need to:
-
-* Refine the **tone** (confident but clear),
-* Improve **structure & visuals** (sectioning, bullets, callouts),
-* Highlight **unique selling points** with **real-world clarity**,
-* Use **sharper examples**, badges, and CTA (call-to-action) links.
-
----
-
-Here’s an upgraded **README.md** you can **copy-paste**:
-
----
-
-````md
 # nullReact
 
 > 🧬 Zero-Runtime · ⚡ Compiler-First · 🧠 Fine-Grained Reactivity  
