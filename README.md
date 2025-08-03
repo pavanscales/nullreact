@@ -43,9 +43,7 @@ nullreact/
 │   └── index.js                # Runtime entrypoint
 │
 ├── examples/                   # JSX demos compiled by CLI
-│   ├── 1m-signals.jsx
-│   ├── 10k-filter.jsx
-│   └── ui-benchmark.jsx
+│   ├── 10k-todos-stress.jsx
 │
 ├── website/                    # Playground and demo UI
 │   ├── public/playground.html
