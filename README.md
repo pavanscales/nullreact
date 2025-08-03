@@ -8,6 +8,10 @@
 
 NullReact is not a framework — it’s a **reactivity compiler**. It transforms standard JSX into **fine-grained reactive JavaScript** without any virtual DOM, and with an optional runtime footprint of under 1KB.
 
+**Zero-runtime JSX + Signals Compiler**  
+A fast, minimal reactive engine and compiler-first JSX runtime built for **extreme speed**, **fine-grained reactivity**, and **<1KB runtime output**.
+
+Built with ❤️ in **Rust + JS**. Inspired by SolidJS, Qwik, and React — reimagined from scratch.
 - **Compiler-First** — All reactivity is handled at build time, not runtime.
 - **No Virtual DOM** — Updates are precise and direct; no diffing or reconciliation.
 - **Minimal Runtime (<1KB)** — Optional runtime handles hydration, batching, and effects.
