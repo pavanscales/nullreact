@@ -1,173 +1,103 @@
-use std::collections::HashMap;
+// ultra fast reactive runtime - kernel-tier optimized
 
-#[derive(Debug, Clone)]
-pub enum JSXNode<'a> {
-    Element {
-        tag: &'a str,
-        attrs: HashMap<&'a str, &'a str>,
-        children: Vec<JSXNode<'a>>,
+let curEff = null;
+const stack = [];
+const pending = new Set();
+let scheduled = false;
+
+// Reactive Signal
+export function signal(val) {
+  const subs = new Set();
+  const s = {
+    get() {
+      if (curEff) {
+        subs.add(curEff);
+        curEff.deps.push(subs);
+      }
+      return val;
     },
-    Text(&'a str),
-    Expression(&'a str),
+    set(newVal) {
+      if (val !== newVal) {
+        val = newVal;
+        for (const eff of subs) schedule(eff);
+      }
+    }
+  };
+  return s;
 }
 
-pub struct Parser<'a> {
-    input: &'a str,
-    pos: usize,
-    len: usize,
+// Reactive Effect
+export function effect(fn) {
+  const eff = () => {
+    cleanup(eff);
+    curEff = eff;
+    stack.push(eff);
+    fn();
+    stack.pop();
+    curEff = stack[stack.length - 1] || null;
+  };
+  eff.deps = [];
+  eff();
+  return eff;
 }
 
-impl<'a> Parser<'a> {
-    pub fn new(input: &'a str) -> Self {
-        Self {
-            input,
-            pos: 0,
-            len: input.len(),
-        }
-    }
-
-    fn peek_char(&self) -> Option<char> {
-        self.input[self.pos..].chars().next()
-    }
-
-    fn next_char(&mut self) -> Option<char> {
-        if self.pos >= self.len {
-            None
-        } else {
-            let ch = self.peek_char()?;
-            self.pos += ch.len_utf8();
-            Some(ch)
-        }
-    }
-
-    fn skip_ws(&mut self) {
-        while let Some(ch) = self.peek_char() {
-            if ch.is_whitespace() {
-                self.next_char();
-            } else {
-                break;
-            }
-        }
-    }
-
-    fn expect_char(&mut self, expected: char) {
-        match self.next_char() {
-            Some(ch) if ch == expected => {}
-            _ => panic!("Expected '{}'", expected),
-        }
-    }
-
-    fn parse_ident(&mut self) -> &'a str {
-        let start = self.pos;
-        while let Some(ch) = self.peek_char() {
-            if ch.is_alphanumeric() || ch == '-' {
-                self.next_char();
-            } else {
-                break;
-            }
-        }
-        &self.input[start..self.pos]
-    }
-
-    fn parse_until(&mut self, end: char) -> &'a str {
-        let start = self.pos;
-        while let Some(ch) = self.peek_char() {
-            if ch == end {
-                break;
-            }
-            self.next_char();
-        }
-        &self.input[start..self.pos]
-    }
-
-    fn consume_str(&mut self, s: &str) -> bool {
-        if self.input[self.pos..].starts_with(s) {
-            self.pos += s.len();
-            true
-        } else {
-            false
-        }
-    }
-
-    pub fn parse_element(&mut self) -> JSXNode<'a> {
-        self.skip_ws();
-        self.expect_char('<');
-
-        let tag = self.parse_ident();
-        let attrs = self.parse_attrs();
-
-        let self_closing = if self.consume_str("/>") {
-            true
-        } else {
-            self.expect_char('>');
-            false
-        };
-
-        let mut children = Vec::new();
-
-        if !self_closing {
-            loop {
-                self.skip_ws();
-                if self.consume_str("</") {
-                    let close_tag = self.parse_ident();
-                    assert_eq!(close_tag, tag, "Mismatched closing tag");
-                    self.expect_char('>');
-                    break;
-                } else if self.peek_char() == Some('<') {
-                    children.push(self.parse_element());
-                } else if self.peek_char() == Some('{') {
-                    self.next_char(); // consume '{'
-                    let expr = self.parse_until('}');
-                    self.expect_char('}');
-                    children.push(JSXNode::Expression(expr.trim()));
-                } else if self.peek_char().is_some() {
-                    let text = self.parse_text();
-                    if !text.trim().is_empty() {
-                        children.push(JSXNode::Text(text));
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
-
-        JSXNode::Element { tag, attrs, children }
-    }
-
-    fn parse_attrs(&mut self) -> HashMap<&'a str, &'a str> {
-        let mut attrs = HashMap::new();
-        loop {
-            self.skip_ws();
-            let ch = self.peek_char();
-            if ch == Some('>') || ch == Some('/') || ch.is_none() {
-                break;
-            }
-            let name = self.parse_ident();
-            self.skip_ws();
-            self.expect_char('=');
-            self.skip_ws();
-            let quote = self.next_char().expect("Expected quote");
-            assert!(quote == '"' || quote == '\'');
-            let value = self.parse_until(quote);
-            self.expect_char(quote);
-            attrs.insert(name, value);
-        }
-        attrs
-    }
-
-    fn parse_text(&mut self) -> &'a str {
-        let start = self.pos;
-        while let Some(ch) = self.peek_char() {
-            if ch == '<' || ch == '{' {
-                break;
-            }
-            self.next_char();
-        }
-        &self.input[start..self.pos]
-    }
+function cleanup(eff) {
+  const d = eff.deps;
+  for (let i = 0; i < d.length; i++) d[i].delete(eff);
+  d.length = 0;
 }
 
-pub fn parse_jsx(input: &str) -> JSXNode {
-    let mut parser = Parser::new(input);
-    parser.parse_element()
+function schedule(eff) {
+  if (!pending.has(eff)) pending.add(eff);
+  if (!scheduled) {
+    scheduled = true;
+    queueMicrotask(flush);
+  }
+}
+
+function flush() {
+  scheduled = false;
+  const q = Array.from(pending);
+  pending.clear();
+  for (let i = 0; i < q.length; i++) q[i]();
+}
+
+// Pure DOM ops - raw and unabstracted
+
+export const el = tag => document.createElement(tag);
+export const txt = str => document.createTextNode(str);
+export const ins = (p, c, a = null) => p.insertBefore(c, a);
+export const rm = n => n.parentNode?.removeChild(n);
+export const attr = (el, k, v) =>
+  v == null || v === false
+    ? el.removeAttribute(k)
+    : el.setAttribute(k, v === true ? '' : v);
+export const setTxt = (n, c) => {
+  if (n.textContent !== c) n.textContent = c;
+};
+
+// JSX-style AST mount
+export function mount(n, container) {
+  if (n.type === 'text') {
+    const t = txt(n.content);
+    ins(container, t);
+    return t;
+  }
+
+  if (n.type === 'signal-text') {
+    const t = txt('');
+    ins(container, t);
+    effect(() => setTxt(t, n.get()));
+    return t;
+  }
+
+  if (n.type === 'element') {
+    const e = el(n.tag);
+    const a = n.attrs;
+    if (a) for (const k in a) attr(e, k, a[k]);
+    const ch = n.children;
+    if (ch) for (let i = 0; i < ch.length; i++) mount(ch[i], e);
+    ins(container, e);
+    return e;
+  }
 }
