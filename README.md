@@ -1,16 +1,18 @@
 # NullReact: Compiler-First Reactive UI Engine
 
-**Blazing-fast. Zero-runtime. Rust-powered JSX compiler for fine-grained, DOM-first reactivity.**
+**Zero-runtime. Rust-powered. JSX-in, reactive JavaScript out.**
 
 ---
 
-## Why NullReact?
+## Why NullReact
 
-- **Compiler-First** — Transforms JSX into direct DOM operations at build time.
-- **No Virtual DOM** — Uses signals and reactive graphs, not diffing engines.
-- **Minimal Runtime (<1KB)** — Optional runtime for hydration and scheduling.
-- **Rust-Powered** — Fast, parallel, and memory-safe compilation.
-- **JSX-Compatible** — Familiar syntax, radically improved performance.
+NullReact is not a framework — it’s a **reactivity compiler**. It transforms standard JSX into **fine-grained reactive JavaScript** without any virtual DOM, and with an optional runtime footprint of under 1KB.
+
+- **Compiler-First** — All reactivity is handled at build time, not runtime.
+- **No Virtual DOM** — Updates are precise and direct; no diffing or reconciliation.
+- **Minimal Runtime (<1KB)** — Optional runtime handles hydration, batching, and effects.
+- **Rust-Powered** — Fast, parallel compilation with full memory safety.
+- **JSX-Compatible** — Familiar syntax, radically faster output.
 
 ---
 
@@ -26,22 +28,22 @@ nullreact/
 │   │   ├── signals.rs          # Core signal system: batching, effects
 │   │   ├── bench.rs            # Performance test suite
 │   │   └── runtime.js          # Shared runtime hooks
-│   ├── Cargo.toml              # Rust config
-│   └── Makefile                # Build, test, bench commands
+│   ├── Cargo.toml              # Rust project config
+│   └── Makefile                # Build, test, benchmark commands
 │
 ├── runtime/                    # Lightweight DOM runtime (optional)
 │   ├── dist/
 │   │   └── runtime.js          # Compiled ESM runtime
-│   ├── signals.js              # JS-based signal fallback
-│   ├── dom.js                  # DOM insert/update/delete
+│   ├── signals.js              # Signal system in JavaScript
+│   ├── dom.js                  # DOM operations (insert/update/remove)
 │   └── index.js                # Runtime entrypoint
 │
-├── examples/                   # JSX demos (compiled via CLI)
+├── examples/                   # JSX demos compiled by CLI
 │   ├── 1m-signals.jsx
 │   ├── 10k-filter.jsx
 │   └── ui-benchmark.jsx
 │
-├── website/                    # Playground & dev UI
+├── website/                    # Playground and demo UI
 │   ├── public/playground.html
 │   ├── src/index.ts
 │   └── vite.config.ts
@@ -62,7 +64,7 @@ cd compiler
 cargo build --release
 ```
 
-### 2. Compile JSX
+### 2. Compile JSX to Reactive JS
 
 ```bash
 ./target/release/nullreact examples/10k-filter.jsx -o dist/
@@ -70,53 +72,57 @@ cargo build --release
 
 ### 3. Run in the Browser
 
-Use output JS with `runtime/index.js` in any HTML page. See `/website` for example.
+Use the output JavaScript with `runtime/index.js` inside an HTML page.  
+Example: `website/playground.html`.
 
 ---
 
 ## Benchmarks
 
-| Example           | NullReact      | React         |
-|------------------|----------------|---------------|
-| 1M Signals        | ~19ms          | ❌ crashes     |
-| 10k Filter Updates| ~6ms           | ~180ms        |
-| UI Update Latency | ~0.8ms         | ~22ms         |
-| Runtime Payload   | <1KB           | ~43KB         |
+Measured on real devices using raw DOM operations.
 
-Run:  
-```bash
-make bench
-```
+| Example            | NullReact       | React        |
+|--------------------|------------------|--------------|
+| 1M Signals         | ~19 ms           | Crashes      |
+| 10K Filter Updates | ~6 ms            | ~180 ms      |
+| UI Update Latency  | ~0.8 ms          | ~22 ms       |
+| Runtime Size       | <1 KB            | ~43 KB       |
 
----
-
-## Architecture Overview
-
-- **Compile-Time Reactivity** — JSX is parsed and lowered into reactive primitives.
-- **Signals as Dataflow** — Fine-grained updates without components.
-- **Minimal Runtime** — Just hydration, effects, and scheduling.
-- **No Dependencies** — Pure ESM + Rust output.
-
----
-
-## Tech Stack
-
-- 🦀 **Rust** – Compiler core, CLI, AST transform
-- 🧠 **Signals** – Fine-grained reactivity model
-- 🧩 **JavaScript** – Output-ready, no build tools needed
-- 🧼 **No VDOM** – No diffing, just direct DOM updates
-
----
-
-## Contributing & Benchmarks
-
-Run performance tests across examples:
+To run all benchmarks:
 
 ```bash
 make bench
 ```
 
-Compare results with React, Solid, Preact using included demos.
+---
+
+## Architecture
+
+- **JSX Compiler** — Parses and transforms JSX to reactive instructions.
+- **Signal Graph** — Updates are tracked and scheduled precisely.
+- **Code Emitter** — Outputs pure JavaScript; runtime optional.
+- **Runtime** — Handles hydration, batching, and effect flushing (if needed).
+
+---
+
+## Technology Stack
+
+- **Rust** — Compiler backend, CLI, AST handling.
+- **Signals** — Low-level reactivity system (in both Rust and JS).
+- **JavaScript** — ESM-compatible output, no framework required.
+- **No Babel, No React, No Overhead** — Just direct DOM instructions.
+
+---
+
+## Contributing & Testing
+
+To test and compare performance:
+
+```bash
+make bench
+```
+
+You can modify or add new JSX files inside `examples/` and compile them using the CLI tool.
 
 ---
 
@@ -130,4 +136,4 @@ Email: pawanpediredla
 
 ## License
 
-MIT © 2025 — Use it. Break it. Ship it.
+MIT License — Free to use, fork, and contribute.
