@@ -1,4 +1,3 @@
-Here’s a **clean, world-class `README.md`** you can copy-paste directly:
 
 ````md
 # nullReact
@@ -12,13 +11,13 @@ nullReact is a blazing-fast alternative to traditional React frameworks. Built f
 
 ## ✨ Features
 
-- ⚡ **Compiler-First**: Converts JSX directly to reactive JavaScript.
-- 🔁 **Signals + Effects**: Built-in fine-grained reactivity system.
-- 🧠 **No Virtual DOM**: Direct DOM updates for extreme performance.
-- 📦 **<1KB Runtime**: Includes a minimal runtime shipped separately.
-- 🛠️ **Written in Rust**: Built for speed and safety.
+-  **Compiler-First**: Converts JSX directly to reactive JavaScript.
+-  **Signals + Effects**: Built-in fine-grained reactivity system.
+-  **No Virtual DOM**: Direct DOM updates for extreme performance.
+-  **<1KB Runtime**: Includes a minimal runtime shipped separately.
+- **Written in Rust**: Built for speed and safety.
 
-## 🚀 Quick Start
+##  Quick Start
 
 ```bash
 # Clone and build
@@ -30,14 +29,14 @@ make build
 make bench
 ````
 
-## 🧪 Examples
+##  Examples
 
 ```jsx
 examples/1m-signals.jsx    // 1 Million Signals, outperforms React
 examples/10k-filter.jsx    // 10,000-item filtering demo
 ```
 
-## 📁 Folder Structure
+## Folder Structure
 
 ```
 nullreact/
@@ -57,19 +56,14 @@ nullreact/
 └── .gitignore             # Clean ignored files
 ```
 
-## 💡 Philosophy
+##  Philosophy
 
 * Reactivity should be **compiled**, not interpreted.
 * Runtime should be **opt-in**, not bloated.
 * Performance should be **measurable**, not theoretical.
 
-## 📜 License
+##  License
 
 MIT © [Pawan Pediredla](mailto:pawanpediredla)
 
 GitHub: [@pavanscales](https://github.com/pavanscales)
-
-```
-
-Let me know if you want badges, logo, or GitHub Actions status added to it, brother.
-```
