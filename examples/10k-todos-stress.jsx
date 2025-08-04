@@ -1,7 +1,6 @@
 // Direct JSX file, no framework — runs with your runtime
 import { signal, effect } from "../runtime/signals.js"
 import { insert, createElement, setProp } from "../runtime/dom.js"
-
 // Core signals
 const todos = signal([])
 const filter = signal("all")
